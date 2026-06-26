@@ -285,29 +285,55 @@ export default function App() {
   async function loadData(): Promise<void> {
     const [films, comments] = await Promise.all([getFilms(), getComments()]);
 
+    const normalizeFilms = (value: any): any[] => {
+      if (Array.isArray(value)) return value;
+      if (value && typeof value === "object") {
+        if (Array.isArray((value as any).items)) return (value as any).items;
+        if (Array.isArray((value as any).rows)) return (value as any).rows;
+      }
+      return [];
+    };
+
+    const normalizeComments = (value: any): any[] => {
+      if (Array.isArray(value)) return value;
+      if (value && typeof value === "object") {
+        if (Array.isArray((value as any).items)) return (value as any).items;
+        if (Array.isArray((value as any).rows)) return (value as any).rows;
+      }
+      return [];
+    };
+
+    const filmItems = normalizeFilms(films);
+    const commentItems = normalizeComments(comments);
+
     const commentsByFilmId = new Map<string, Comment[]>();
-    (comments ?? []).forEach((comment: any) => {
+    commentItems.forEach((comment: any) => {
       const filmId = String(
-        comment.filmId ?? comment.movieId ?? comment.film_id ?? ""
+        comment.filmId ?? comment.movieId ?? comment.film_id ?? comment[0] ?? ""
       );
       if (!filmId) return;
       const next = commentsByFilmId.get(filmId) ?? [];
       next.push({
-        id: String(comment.id ?? crypto.randomUUID()),
-        text: comment.text,
-        author: comment.author ?? comment.username ?? "Anonyme",
+        id: String(comment.id ?? comment[4] ?? crypto.randomUUID()),
+        text: comment.text ?? comment[2] ?? "",
+        author: comment.author ?? comment.username ?? comment[1] ?? "Anonyme",
       });
       commentsByFilmId.set(filmId, next);
     });
 
     setMovies(
-      films.map((movie: any) => {
-        const movieId = String(movie.id);
+      filmItems.map((movie: any, index: number) => {
+        const payload = movie && typeof movie === "object" ? movie : { id: movie };
+        const movieId = String(payload.id ?? payload[0] ?? index);
+        const title = payload.title ?? payload[1] ?? "";
+        const author = payload.author ?? payload[2] ?? "Anonyme";
+        const votes = Number(payload.votes ?? payload[4] ?? 0);
+
         return {
           id: movieId,
-          title: movie.title,
-          author: movie.author,
-          votes: Number(movie.votes),
+          title,
+          author,
+          votes,
           comments: commentsByFilmId.get(movieId) ?? [],
           rotation: pickRotation(movieId),
         };
