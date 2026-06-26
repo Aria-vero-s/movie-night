@@ -29,7 +29,6 @@ export async function getComments() {
 export async function createFilm(title: string, username: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       action: "addFilm",
       title,
@@ -47,7 +46,6 @@ export async function createFilm(title: string, username: string) {
 export async function voteFilm(filmId: string, username: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       action: "vote",
       filmId,
@@ -65,7 +63,6 @@ export async function voteFilm(filmId: string, username: string) {
 export async function addComment(filmId: string, username: string, text: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       action: "comment",
       filmId,
@@ -84,7 +81,6 @@ export async function addComment(filmId: string, username: string, text: string)
 export async function deleteFilm(filmId: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       action: "deleteFilm",
       filmId,
@@ -101,7 +97,6 @@ export async function deleteFilm(filmId: string) {
 export async function updateFilm(filmId: string, title: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       action: "updateFilm",
       filmId,
