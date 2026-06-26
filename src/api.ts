@@ -5,10 +5,12 @@ async function requestJson(url: string, options?: RequestInit) {
   const response = await fetch(url, options);
   const text = await response.text();
 
+  console.log("RAW RESPONSE:", text);
+
   try {
     return text ? JSON.parse(text) : null;
   } catch {
-    throw new Error(`Invalid JSON response from ${url}: ${text}`);
+    return { ok: true, raw: text };
   }
 }
 
