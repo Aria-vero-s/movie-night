@@ -27,11 +27,7 @@ export async function getComments() {
 export async function createFilm(title: string, username: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action: "addFilm",
-      title,
-      username,
-    }),
+    body: new URLSearchParams({ action: "addFilm", title, username }),
   });
 
   if (result && typeof result === "object" && "error" in result) {
@@ -44,11 +40,7 @@ export async function createFilm(title: string, username: string) {
 export async function voteFilm(filmId: string, username: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action: "vote",
-      filmId,
-      username,
-    }),
+    body: new URLSearchParams({ action: "vote", filmId, username }),
   });
 
   if (result?.ok === false) {
@@ -61,11 +53,7 @@ export async function voteFilm(filmId: string, username: string) {
 export async function unvoteFilm(filmId: string, username: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action: "unvote",
-      filmId,
-      username,
-    }),
+    body: new URLSearchParams({ action: "unvote", filmId, username }),
   });
 
   if (result?.ok === false) {
@@ -78,12 +66,7 @@ export async function unvoteFilm(filmId: string, username: string) {
 export async function addComment(filmId: string, username: string, text: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action: "comment",
-      filmId,
-      username,
-      text,
-    }),
+    body: new URLSearchParams({ action: "comment", filmId, username, text }),
   });
 
   if (!result?.ok) {
@@ -96,10 +79,7 @@ export async function addComment(filmId: string, username: string, text: string)
 export async function deleteFilm(filmId: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action: "deleteFilm",
-      filmId,
-    }),
+    body: new URLSearchParams({ action: "deleteFilm", filmId }),
   });
 
   if (!result?.ok) {
@@ -112,11 +92,7 @@ export async function deleteFilm(filmId: string) {
 export async function updateFilm(filmId: string, title: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action: "updateFilm",
-      filmId,
-      title,
-    }),
+    body: new URLSearchParams({ action: "updateFilm", filmId, title }),
   });
 
   if (!result?.ok) {
