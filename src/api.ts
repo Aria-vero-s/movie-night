@@ -14,9 +14,20 @@ async function requestJson(url: string, options?: RequestInit) {
   }
 }
 
-const JSON_HEADERS = {
-  "Content-Type": "application/json",
-};
+function isOkResult(result: unknown): result is { ok: true } {
+  return !!result && typeof result === "object" && (result as { ok?: boolean }).ok === true;
+}
+
+function postAction(params: Record<string, string>) {
+  const body = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    body.append(key, value);
+  });
+  return requestJson(ORIGINAL_API_URL, {
+    method: "POST",
+    body,
+  });
+}
 
 export async function getFilms() {
   return requestJson(`${ORIGINAL_API_URL}?action=films`);
@@ -31,72 +42,60 @@ export async function getComments() {
 }
 
 export async function createFilm(title: string, username: string) {
-  const result = await requestJson(ORIGINAL_API_URL, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({
-      action: "addFilm",
-      title,
-      username,
-    }),
+  const result = await postAction({
+    action: "addFilm",
+    title,
+    username,
   });
 
   if (result && typeof result === "object" && "error" in result) {
     throw new Error(String(result.error));
   }
 
-  return result ?? { ok: true };
+  if (!isOkResult(result)) {
+    throw new Error("Failed to create film");
+  }
+
+  return result;
 }
 
 export async function voteFilm(filmId: string, username: string) {
-  const result = await requestJson(ORIGINAL_API_URL, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({
-      action: "vote",
-      filmId,
-      username,
-    }),
+  const result = await postAction({
+    action: "vote",
+    filmId,
+    username,
   });
 
-  if (result?.ok === false) {
-    return { ok: false };
+  if (result && typeof result === "object" && "error" in result) {
+    throw new Error(String(result.error));
   }
 
-  return { ok: true };
+  return { ok: isOkResult(result) };
 }
 
 export async function unvoteFilm(filmId: string, username: string) {
-  const result = await requestJson(ORIGINAL_API_URL, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({
-      action: "unvote",
-      filmId,
-      username,
-    }),
+  const result = await postAction({
+    action: "unvote",
+    filmId,
+    username,
   });
 
-  if (result?.ok === false) {
-    return { ok: false };
+  if (result && typeof result === "object" && "error" in result) {
+    throw new Error(String(result.error));
   }
 
-  return { ok: true };
+  return { ok: isOkResult(result) };
 }
 
 export async function addComment(filmId: string, username: string, text: string) {
-  const result = await requestJson(ORIGINAL_API_URL, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({
-      action: "comment",
-      filmId,
-      username,
-      text,
-    }),
+  const result = await postAction({
+    action: "comment",
+    filmId,
+    username,
+    text,
   });
 
-  if (!result?.ok) {
+  if (!isOkResult(result)) {
     throw new Error(result?.error || "Failed to add comment");
   }
 
@@ -104,16 +103,12 @@ export async function addComment(filmId: string, username: string, text: string)
 }
 
 export async function deleteFilm(filmId: string) {
-  const result = await requestJson(ORIGINAL_API_URL, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({
-      action: "deleteFilm",
-      filmId,
-    }),
+  const result = await postAction({
+    action: "deleteFilm",
+    filmId,
   });
 
-  if (!result?.ok) {
+  if (!isOkResult(result)) {
     throw new Error(result?.error || "Failed to delete film");
   }
 
@@ -121,17 +116,13 @@ export async function deleteFilm(filmId: string) {
 }
 
 export async function updateFilm(filmId: string, title: string) {
-  const result = await requestJson(ORIGINAL_API_URL, {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body: JSON.stringify({
-      action: "updateFilm",
-      filmId,
-      title,
-    }),
+  const result = await postAction({
+    action: "updateFilm",
+    filmId,
+    title,
   });
 
-  if (!result?.ok) {
+  if (!isOkResult(result)) {
     throw new Error(result?.error || "Failed to update film");
   }
 
