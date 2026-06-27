@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getFilms, getComments, getVotes, createFilm, voteFilm, unvoteFilm, addComment as addCommentApi, deleteFilm, updateFilm } from "../api";
+import { getFilms, getComments, getVotes, createFilm, voteFilm, unvoteFilm, addComment as addCommentApi, deleteFilm, updateFilm, deleteComment as deleteCommentApi, updateComment as updateCommentApi } from "../api";
 import { Heart, Plus, Send, Trophy, Trash2, Pencil, Check, X } from "lucide-react";
 
 interface Comment {
@@ -79,7 +79,69 @@ function HeartButton({
   );
 }
 
-function CommentSection({ comments, onAdd }: { comments: Comment[]; onAdd: (text: string) => void }) {
+function CommentItem({ comment, isOwn, onDelete, onEdit }: {
+  comment: Comment;
+  isOwn: boolean;
+  onDelete: () => void;
+  onEdit: (newText: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [editVal, setEditVal] = useState(comment.text);
+
+  useEffect(() => {
+    if (!editing) setEditVal(comment.text);
+  }, [comment.text]);
+
+  function confirmEdit() {
+    const t = editVal.trim();
+    if (t && t !== comment.text) onEdit(t);
+    setEditing(false);
+  }
+
+  return (
+    <li className="text-xs text-gray-600 leading-relaxed group flex items-start gap-1">
+      {editing ? (
+        <div className="flex items-center gap-1 flex-1">
+          <input
+            autoFocus
+            type="text"
+            value={editVal}
+            onChange={(e) => setEditVal(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") confirmEdit();
+              if (e.key === "Escape") { setEditVal(comment.text); setEditing(false); }
+            }}
+            className="flex-1 bg-white/70 border border-gray-300 rounded px-1.5 py-0.5 text-xs outline-none"
+          />
+          <button onClick={confirmEdit} className="text-emerald-500 hover:text-emerald-600 flex-shrink-0"><Check size={10} /></button>
+          <button onClick={() => { setEditVal(comment.text); setEditing(false); }} className="text-gray-400 hover:text-gray-600 flex-shrink-0"><X size={10} /></button>
+        </div>
+      ) : (
+        <>
+          <span className="flex-1">
+            <span className="font-bold text-gray-700">{comment.author}</span>
+            <span className="text-gray-400 mx-1">·</span>
+            {comment.text}
+          </span>
+          {isOwn && (
+            <span className="flex items-center gap-0.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button onClick={() => setEditing(true)} className="text-gray-400 hover:text-gray-700 p-0.5"><Pencil size={9} /></button>
+              <button onClick={onDelete} className="text-gray-400 hover:text-rose-500 p-0.5"><Trash2 size={9} /></button>
+            </span>
+          )}
+        </>
+      )}
+    </li>
+  );
+}
+
+function CommentSection({ comments, onAdd, onDelete, onEdit, username }: {
+  comments: Comment[];
+  onAdd: (text: string) => void;
+  onDelete: (commentId: string) => void;
+  onEdit: (commentId: string, newText: string) => void;
+  username: string;
+}) {
   const [text, setText] = useState("");
 
   function submit() {
@@ -94,11 +156,13 @@ function CommentSection({ comments, onAdd }: { comments: Comment[]; onAdd: (text
       {comments.length > 0 && (
         <ul className="mb-2 space-y-1.5">
           {comments.map((c) => (
-            <li key={c.id} className="text-xs text-gray-600 leading-relaxed">
-              <span className="font-bold text-gray-700">{c.author}</span>
-              <span className="text-gray-400 mx-1">·</span>
-              {c.text}
-            </li>
+            <CommentItem
+              key={c.id}
+              comment={c}
+              isOwn={c.author === username}
+              onDelete={() => onDelete(c.id)}
+              onEdit={(newText) => onEdit(c.id, newText)}
+            />
           ))}
         </ul>
       )}
@@ -126,19 +190,25 @@ function PostIt({
   isWinner,
   isOwner,
   voted,
+  username,
   onToggleVote,
   onComment,
   onDelete,
   onEdit,
+  onDeleteComment,
+  onEditComment,
 }: {
   movie: Movie;
   isWinner: boolean;
   isOwner: boolean;
   voted: boolean;
+  username: string;
   onToggleVote: () => void;
   onComment: (text: string) => void;
   onDelete: () => void;
   onEdit: (newTitle: string) => void;
+  onDeleteComment: (commentId: string) => void;
+  onEditComment: (commentId: string, newText: string) => void;
 }) {
   const color = pickColor(movie.id);
   const [hovered, setHovered] = useState(false);
@@ -239,7 +309,13 @@ function PostIt({
           <HeartButton count={movie.votes} voted={voted} onToggle={onToggleVote} />
         </div>
       </div>
-      <CommentSection comments={movie.comments} onAdd={onComment} />
+      <CommentSection
+        comments={movie.comments}
+        onAdd={onComment}
+        onDelete={onDeleteComment}
+        onEdit={onEditComment}
+        username={username}
+      />
     </div>
   );
 }
@@ -398,7 +474,12 @@ export default function App() {
         setMovies(previousMovies);
         return;
       }
-      await loadData();
+      // Replace temp ID with real Firebase ID in-place (no loadData, no reorder)
+      setMovies((prev) =>
+        prev.map((m) =>
+          m.id === tempId ? { ...m, id: result.id, rotation: pickRotation(result.id) } : m
+        )
+      );
     } catch (error) {
       setMovies(previousMovies);
       console.error("Failed to create film", error);
@@ -481,7 +562,15 @@ export default function App() {
       )
     );
     try {
-      await addCommentApi(id, username!, text);
+      const result = await addCommentApi(id, username!, text);
+      // Replace temp ID with real Firebase ID
+      setMovies((prev) =>
+        prev.map((movie) =>
+          movie.id === id
+            ? { ...movie, comments: movie.comments.map((c) => c.id === optimisticId ? { ...c, id: result.id } : c) }
+            : movie
+        )
+      );
     } catch (error) {
       setMovies((prev) =>
         prev.map((movie) =>
@@ -491,6 +580,51 @@ export default function App() {
         )
       );
       console.error("Failed to add comment", error);
+    }
+  }
+
+  async function deleteCommentFromFilm(filmId: string, commentId: string) {
+    const comment = movies.find((m) => m.id === filmId)?.comments.find((c) => c.id === commentId);
+    if (!comment) return;
+    setMovies((prev) =>
+      prev.map((m) =>
+        m.id === filmId ? { ...m, comments: m.comments.filter((c) => c.id !== commentId) } : m
+      )
+    );
+    try {
+      await deleteCommentApi(filmId, commentId);
+    } catch (error) {
+      setMovies((prev) =>
+        prev.map((m) =>
+          m.id === filmId ? { ...m, comments: [...m.comments, comment] } : m
+        )
+      );
+      console.error("Failed to delete comment", error);
+    }
+  }
+
+  async function editCommentInFilm(filmId: string, commentId: string, newText: string) {
+    const comment = movies.find((m) => m.id === filmId)?.comments.find((c) => c.id === commentId);
+    if (!comment) return;
+    const oldText = comment.text;
+    setMovies((prev) =>
+      prev.map((m) =>
+        m.id === filmId
+          ? { ...m, comments: m.comments.map((c) => c.id === commentId ? { ...c, text: newText } : c) }
+          : m
+      )
+    );
+    try {
+      await updateCommentApi(filmId, commentId, newText);
+    } catch (error) {
+      setMovies((prev) =>
+        prev.map((m) =>
+          m.id === filmId
+            ? { ...m, comments: m.comments.map((c) => c.id === commentId ? { ...c, text: oldText } : c) }
+            : m
+        )
+      );
+      console.error("Failed to edit comment", error);
     }
   }
 
@@ -564,11 +698,14 @@ export default function App() {
                   movie={movie}
                   isWinner={movie.id === topId && movie.votes > 0}
                   isOwner={movie.author === username}
+                  username={username!}
                   voted={votedIds.has(movie.id)}
                   onToggleVote={() => toggleVote(movie.id)}
                   onComment={(text) => addComment(movie.id, text)}
                   onDelete={() => deleteMovie(movie.id)}
                   onEdit={(newTitle) => editMovie(movie.id, newTitle)}
+                  onDeleteComment={(commentId) => deleteCommentFromFilm(movie.id, commentId)}
+                  onEditComment={(commentId, newText) => editCommentInFilm(movie.id, commentId, newText)}
                 />
               </div>
             ))}
