@@ -6,7 +6,7 @@ Une application collaborative pour choisir le film de la soirée ! Proposez des 
 
 ---
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
 - **🎬 Proposer des films** — Ajoutez vos suggestions de films à la board
 - **❤️ Voter** — Cliquez sur le cœur pour voter (ou dé-voter) pour un film
@@ -18,7 +18,7 @@ Une application collaborative pour choisir le film de la soirée ! Proposez des 
 
 ---
 
-## 🛠️ Stack Technique
+## Stack Technique
 
 - **Frontend** : React 18 + TypeScript + Vite
 - **Styling** : Tailwind CSS v4
