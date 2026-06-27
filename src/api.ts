@@ -1,5 +1,5 @@
 const ORIGINAL_API_URL =
-  "https://script.google.com/macros/s/AKfycbz3Vya88OgxlqCDDUCVjLOLWVnxPAHsw6CaC_iCgNX397DNC49ZuwO-eCNya4oX6is6/exec";
+  "https://script.google.com/macros/s/AKfycbweDFqppCsPIMpHkUhnOF0oGco9-AVP0s_su49fAvclLgcClDyRNP5uQ_EEtGeFolJ9/exec";
 
 async function requestJson(url: string, options?: RequestInit) {
   const response = await fetch(url, options);
@@ -14,12 +14,8 @@ async function requestJson(url: string, options?: RequestInit) {
   }
 }
 
-function encodeFormBody(data: Record<string, string>) {
-  return new URLSearchParams(data).toString();
-}
-
-const FORM_HEADERS = {
-  "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+const JSON_HEADERS = {
+  "Content-Type": "application/json",
 };
 
 export async function getFilms() {
@@ -37,8 +33,8 @@ export async function getComments() {
 export async function createFilm(title: string, username: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: FORM_HEADERS,
-    body: encodeFormBody({
+    headers: JSON_HEADERS,
+    body: JSON.stringify({
       action: "addFilm",
       title,
       username,
@@ -55,8 +51,8 @@ export async function createFilm(title: string, username: string) {
 export async function voteFilm(filmId: string, username: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: FORM_HEADERS,
-    body: encodeFormBody({
+    headers: JSON_HEADERS,
+    body: JSON.stringify({
       action: "vote",
       filmId,
       username,
@@ -73,8 +69,8 @@ export async function voteFilm(filmId: string, username: string) {
 export async function addComment(filmId: string, username: string, text: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: FORM_HEADERS,
-    body: encodeFormBody({
+    headers: JSON_HEADERS,
+    body: JSON.stringify({
       action: "comment",
       filmId,
       username,
@@ -92,8 +88,8 @@ export async function addComment(filmId: string, username: string, text: string)
 export async function deleteFilm(filmId: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: FORM_HEADERS,
-    body: encodeFormBody({
+    headers: JSON_HEADERS,
+    body: JSON.stringify({
       action: "deleteFilm",
       filmId,
     }),
@@ -109,8 +105,8 @@ export async function deleteFilm(filmId: string) {
 export async function updateFilm(filmId: string, title: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: FORM_HEADERS,
-    body: encodeFormBody({
+    headers: JSON_HEADERS,
+    body: JSON.stringify({
       action: "updateFilm",
       filmId,
       title,
