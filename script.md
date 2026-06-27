@@ -23,9 +23,12 @@ function doGet(e) {
 
 function doPost(e) {
   try {
-    const data = e.postData && e.postData.type === "application/json"
-      ? JSON.parse(e.postData.contents)
-      : e.parameter || {};
+    let data;
+    if (e.postData && e.postData.contents) {
+      try { data = JSON.parse(e.postData.contents); } catch { data = e.parameter || {}; }
+    } else {
+      data = e.parameter || {};
+    }
 
     switch (data.action) {
       case "addFilm":

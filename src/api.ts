@@ -5,18 +5,12 @@ async function requestJson(url: string, options?: RequestInit) {
   const response = await fetch(url, options);
   const text = await response.text();
 
-  console.log("RAW RESPONSE:", text);
-
   try {
     return text ? JSON.parse(text) : null;
   } catch {
     return { ok: true, raw: text };
   }
 }
-
-const JSON_HEADERS = {
-  "Content-Type": "application/json",
-};
 
 export async function getFilms() {
   return requestJson(`${ORIGINAL_API_URL}?action=films`);
@@ -33,7 +27,6 @@ export async function getComments() {
 export async function createFilm(title: string, username: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: JSON_HEADERS,
     body: JSON.stringify({
       action: "addFilm",
       title,
@@ -51,7 +44,6 @@ export async function createFilm(title: string, username: string) {
 export async function voteFilm(filmId: string, username: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: JSON_HEADERS,
     body: JSON.stringify({
       action: "vote",
       filmId,
@@ -69,7 +61,6 @@ export async function voteFilm(filmId: string, username: string) {
 export async function unvoteFilm(filmId: string, username: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: JSON_HEADERS,
     body: JSON.stringify({
       action: "unvote",
       filmId,
@@ -87,7 +78,6 @@ export async function unvoteFilm(filmId: string, username: string) {
 export async function addComment(filmId: string, username: string, text: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: JSON_HEADERS,
     body: JSON.stringify({
       action: "comment",
       filmId,
@@ -106,7 +96,6 @@ export async function addComment(filmId: string, username: string, text: string)
 export async function deleteFilm(filmId: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: JSON_HEADERS,
     body: JSON.stringify({
       action: "deleteFilm",
       filmId,
@@ -123,7 +112,6 @@ export async function deleteFilm(filmId: string) {
 export async function updateFilm(filmId: string, title: string) {
   const result = await requestJson(ORIGINAL_API_URL, {
     method: "POST",
-    headers: JSON_HEADERS,
     body: JSON.stringify({
       action: "updateFilm",
       filmId,
