@@ -206,7 +206,7 @@ function updateFilm(d) {
     return json({ ok: false, error: "film not found" });
   }
 
-  filmSheet.getRange(rowIndex + 2, 2).setValue(d.title);
+  filmSheet.getRange(rowIndex + 1, 2).setValue(d.title);
   return json({ ok: true });
 }
 

@@ -459,10 +459,8 @@ export default function App() {
     setMovies((prev) => prev.map((movie) => (movie.id === id ? { ...movie, title: newTitle } : movie)));
 
     try {
-      const result = await updateFilm(id, newTitle);
-      if (!result?.ok) {
-        setMovies(previousMovies);
-      }
+      await updateFilm(id, newTitle);
+      await loadData();
     } catch (error) {
       setMovies(previousMovies);
       console.error("Failed to update film", error);
@@ -470,10 +468,25 @@ export default function App() {
   }
 
   async function addComment(id: string, text: string) {
+    const optimisticId = crypto.randomUUID();
+    setMovies((prev) =>
+      prev.map((movie) =>
+        movie.id === id
+          ? { ...movie, comments: [...movie.comments, { id: optimisticId, text, author: username! }] }
+          : movie
+      )
+    );
     try {
       await addCommentApi(id, username!, text);
       await loadData();
     } catch (error) {
+      setMovies((prev) =>
+        prev.map((movie) =>
+          movie.id === id
+            ? { ...movie, comments: movie.comments.filter((c) => c.id !== optimisticId) }
+            : movie
+        )
+      );
       console.error("Failed to add comment", error);
     }
   }
