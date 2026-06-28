@@ -341,7 +341,7 @@ function UsernameGate({ onEnter }: { onEnter: (name: string) => void }) {
         <div className="flex flex-col items-center gap-3">
           <div className="text-5xl leading-none">🍿</div>
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">Movie Night</h1>
-          <p className="text-gray-500 text-base font-medium">Choisis un pseudo ! <br /> (Tu pourras le réutiliser plus tard!)</p>
+          <p className="text-gray-500 text-base font-medium">Choisis un pseudo ! <br/> (Tu pourras le réutiliser plus tard !)</p>
         </div>
         <div className="w-full flex flex-col gap-3">
           <input
