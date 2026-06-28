@@ -1,4 +1,4 @@
-<img width="1866" height="963" alt="image" src="https://github.com/user-attachments/assets/69e31d0f-c00f-4a0b-a1ad-78f323c808be" />
+<img width="2506" height="1323" alt="image" src="https://github.com/user-attachments/assets/8cf2687a-e9bb-4729-8504-484cb993a5ab" />
 
 # 🍨 Scoop
 Une application collaborative pour choisir le film de la soirée ou des activités ! Proposez des films, votez pour vos préférés, et laissez des commentaires.
