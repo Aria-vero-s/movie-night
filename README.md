@@ -1,21 +1,22 @@
 <img width="1866" height="963" alt="image" src="https://github.com/user-attachments/assets/69e31d0f-c00f-4a0b-a1ad-78f323c808be" />
 
-# 🍿 Movie Night
-Une application collaborative pour choisir le film de la soirée ! Proposez des films, votez pour vos préférés, et laissez des commentaires.
+# 🍨 Scoop
+Une application collaborative pour choisir le film de la soirée ou des activités ! Proposez des films, votez pour vos préférés, et laissez des commentaires.
 
-**Démo en ligne :** [aria-vero-s.github.io/movie-night](https://aria-vero-s.github.io/movie-night/)
+**Démo en ligne :** [aria-vero-s.github.io/scoop](https://aria-vero-s.github.io/scoop/)
 
 ---
 
 ## Fonctionnalités
 
+- **🍨 Proposer des activités** — Ajoutez vos suggestions d'activités
 - **🎬 Proposer des films** — Ajoutez vos suggestions de films à la board
 - **❤️ Voter** — Cliquez sur le cœur pour voter (ou dé-voter) pour un film
 - **🏆 Film gagnant** — Le film avec le plus de votes est automatiquement mis en avant
-- **💬 Commenter** — Laissez des commentaires sur chaque film
+- **💬 Commenter** — Laissez des commentaires
 - **✏️ Modifier & Supprimer** — Éditez ou supprimez vos propres films et commentaires (survol pour voir les icônes)
 - **📱 Design responsive** — Fonctionne sur mobile, tablette et desktop
-- **🎨 Interface Post-it** — Chaque film est affiché sur un post-it coloré avec rotation aléatoire
+- **🎨 Interface Post-it** — Chaque film/activité est affiché(e) sur un post-it coloré avec rotation aléatoire
 
 ---
 
@@ -118,4 +119,4 @@ src/
 
 ---
 
-**Créé avec ❤️ pour vos soirées ciné**
+**Créé avec ❤️**
